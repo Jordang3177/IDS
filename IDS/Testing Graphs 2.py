@@ -14,6 +14,46 @@ class Tree(object):
         self.children.append(node)
 
 
+def generating_tree_new(node, current_depth):
+    instances = 1
+    if current_depth == 18:
+        return node
+    else:
+        for flip in range(0, pancakes):
+            flippancake(node, instances)
+            instances = instances + 1
+        for children in node.children:
+            generating_tree_new(children, current_depth + 1)
+    return node
+
+
+def flippancake(tree, instance):
+    original_name = tree.name
+    temp_name = ""
+    end_name = ""
+    count = 0
+    for j in range(0, instance):
+        for k in range(1, len(original_name)):
+            if original_name[k] == 'b':
+                count = count + 1
+            else:
+                break
+        count = count + 1
+        temp_name = original_name[0:count]
+        original_name = original_name[count:]
+        if len(temp_name) == sides:
+            temp_name = temp_name[0]
+        else:
+            temp_name = temp_name + 'b'
+        end_name = temp_name + end_name
+        temp_name = ""
+        count = 0
+    end_name = end_name + original_name
+    end_name = Tree(end_name)
+    tree.add_child(end_name)
+    return tree
+
+
 def generating_tree(node, current_depth):
     instances = 0
     count = 0
@@ -85,8 +125,7 @@ def generating_tree(node, current_depth):
                 # wow
                 new_name = node.name[:j + 1] + "b" + node.name[j + 1:]
                 new_name = new_name[j:] + new_name[:j]
-                subname = new_name[count + 3:]
-                j = count + 2
+                subname = new_name[count + sides:]
                 count = 0
                 for l in range(0, len(subname)):
                     if subname[l] != "b":
@@ -113,22 +152,24 @@ def generating_tree(node, current_depth):
 def lengths(tree, lengthsdict, length, nodeslist, targetname):
     if targetname == tree.name:
         lengthsdict[length] = 1
-            #if children not in nodeslist:
-            #    nodeslist.append(children.name)
-            #    lengths(children, lengthsdict, 0, nodeslist, children.name)
-    else:
         for children in tree.children:
-            lengths(children, lengthsdict, length + 1, nodeslist, targetname)
-            #if children not in nodeslist:
-            #    nodeslist.append(children.name)
-            #    lengths(children, lengthsdict, 0, nodeslist, children.name)
+            if children.name not in nodeslist:
+                nodeslist.append(children.name)
+                lengths(children, lengthsdict, 0, nodeslist, children.name)
+    else:
+        length = length + 1
+        for children in tree.children:
+            lengths(children, lengthsdict, length, nodeslist, targetname)
+            if children.name not in nodeslist:
+                nodeslist.append(children.name)
+                lengths(children, lengthsdict, 0, nodeslist, children.name)
 
 
-def dicupdate(dict):
-    if dictofLengths != dict:
-        for i in range(0, len(dict)):
-            if dictofLengths[i] == 0 and dict[i] == 1:
-                dictofLengths[i] = dict[i]
+def dicupdate(dictionary):
+    if dictofLengths != dictionary:
+        for index in range(0, len(dictionary)):
+            if dictofLengths[index] == 0 and dictionary[index] == 1:
+                dictofLengths[index] = dictionary[index]
 
 
 def printingtree(tree, length):
@@ -138,16 +179,44 @@ def printingtree(tree, length):
     for children in tree.children:
         printingtree(children, length + 1)
 
-def checkingvalues(tree, validvalues, length):
-    if tree.name not in validvalues:
+
+def checkingvalues(tree, validelements, length):
+    if tree.name not in validelements:
         print("ERROR, ERROR, We have an error at length: ", length)
+        print(tree.name)
     for children in tree.children:
-        checkingvalues(children, validvalues, length + 1)
-pancakes = 2 #input("Enter the number of pancakes: ")
-sides = 3 #input("Enter the number of Sides per Pancake: ")
+        checkingvalues(children, validelements, length + 1)
+
+
+countingthings = 0
+
+
+def checkingchildren(tree, validthings):
+    for children in tree.children:
+        global countingthings
+        countingthings += 1
+        if children.name not in validthings[tree.name]:
+            print("ALARM ALARM PLEASE SAVE ME")
+    for children in tree.children:
+        checkingchildren(children, validthings)
+
+
+counter = 1
+
+
+def countchildren(tree):
+    for children in tree.children:
+        global counter
+        counter += 1
+        countchildren(children)
+
+
+pancakes = input("Enter the number of pancakes: ")
+sides = input("Enter the number of Sides per Pancake: ")
+while type(pancakes) != int:
+    pancakes = input("")
 pancakes = int(pancakes)
 sides = int(sides)
-
 root = ""
 for pancake in range(1, pancakes + 1):
     root = root + str(pancake)
@@ -155,7 +224,7 @@ root = Tree(root)
 print(root.name)
 side_count = 0
 depth = 0
-root = generating_tree(root, depth)
+root = generating_tree_new(root, depth)
 
 
 validvalues = ["12", "1b2", "1bb2", "2bb1bb", "2b1bb", "21bb", "12b", "2bb1b", "2b1b", "21b", "12bb", "1b2bb", "1bb2bb",
@@ -163,17 +232,45 @@ validvalues = ["12", "1b2", "1bb2", "2bb1bb", "2b1bb", "21bb", "12b", "2bb1b", "
 print(len(validvalues))
 checkingvalues(root, validvalues, 0)
 
-print(root.name == "12")
+#print(root.name == "12")
 dictofLengths = {}
-listofnodes = []
-listofnodes.append(root.name)
+listofnodes = [root.name]
 
 for i in range(0, 18 + 1):
     dictofLengths[i] = 0
 
 
 # Should be 3,4,6,8,9,10,12,13,14,15,18
-#for children in root.children:
-#    lengths(children, dictofLengths, 1, listofnodes, root.name)
+for kid in root.children:
+    lengths(kid, dictofLengths, 1, listofnodes, root.name)
 # lengths(root, dictofLengths, 0, listofnodes, root.name)
-#print(dictofLengths)
+del dictofLengths[0]
+print(dictofLengths)
+
+listofvalidchildren = {"12": ["1b2", "2b1b"],
+                       "1b2": ["1bb2", "2b1bb"],
+                       "1bb2": ["12", "2b1"],
+                       "2bb1bb": ["21bb", "12"],
+                       "2b1bb": ["2bb1bb", "12bb"],
+                       "21bb": ["2b1bb", "12b"],
+                       "12b": ["1b2b", "2bb1b"],
+                       "2bb1b": ["21b", "1bb2"],
+                       "2b1b": ["2bb1b", "1bb2bb"],
+                       "21b": ["2b1b", "1bb2b"],
+                       "12bb": ["1b2bb", "21b"],
+                       "1b2bb": ["1bb2bb", "21bb"],
+                       "1bb2bb": ["12bb", "21"],
+                       "2b1": ["2bb1", "1b2bb"],
+                       "21": ["2b1", "1b2b"],
+                       "2bb1": ["21", "1b2"],
+                       "1b2b": ["1bb2b", "2bb1bb"],
+                       "1bb2b": ["12b", "2bb1"]}
+
+checkingchildren(root, listofvalidchildren)
+countchildren(root)
+if counter == (pow(2, 19) - 1):
+    print("ELEELELELEL")
+else:
+    print("we are sad")
+    print(counter)
+print(countingthings)
