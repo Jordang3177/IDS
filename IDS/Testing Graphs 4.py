@@ -10,7 +10,7 @@ def generate_graph(vertex, gdict, s, p):
     else:
         instances = 1
         children = []
-        for flip in range(0 , p):
+        for flip in range(0, p):
             children.append(get_children(vertex, instances, s))
             instances = instances + 1
         gdict[vertex] = children
@@ -21,7 +21,6 @@ def generate_graph(vertex, gdict, s, p):
 
 def get_children(nodes, instance, side):
     original_name = nodes
-    temp_name = ""
     end_name = ""
     count = 0
     for j in range(0, instance):
@@ -38,13 +37,12 @@ def get_children(nodes, instance, side):
         else:
             temp_name = temp_name + 'b'
         end_name = temp_name + end_name
-        temp_name = ""
         count = 0
     end_name = end_name + original_name
     return end_name
 
 
-def find_all_paths(graph, start, end, path = []):
+def find_all_paths(graph, start, end, path):
     path = path + [start]
     if start == end:
         return [path]
@@ -61,9 +59,9 @@ def find_all_paths(graph, start, end, path = []):
 def main():
     sides = input("Enter the number of Sides per Permutation: ")
     pancakes = input("Enter the number of Permutations: ")
-    while type(pancakes) != int:
+    while not pancakes.isdigit():
         pancakes = input("Please give an integer for the number of Permutations")
-    while type(sides) != int:
+    while not sides.isdigit():
         sides = input("Please give an integer for the number of Sides per Permutation: ")
     pancakes = int(pancakes)
     sides = int(sides)
@@ -73,9 +71,8 @@ def main():
 
     graphdict = {}
     generate_graph(root, graphdict, sides, pancakes)
-
-    paths = []
-    paths.append(find_all_paths(graphdict, graphdict[root][0], root))
+    path = []
+    paths = [find_all_paths(graphdict, graphdict[root][0], root, path)]
     lendict = {}
     length = pow(sides, pancakes) * math.factorial(pancakes)
     for i in range(0, length + 1):
