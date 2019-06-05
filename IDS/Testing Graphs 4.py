@@ -52,17 +52,18 @@ def find_all_paths(graph, start, end, path):
         if node not in path:
             newpaths = find_all_paths(graph, node, end, path)
         for newpath in newpaths:
-            paths.append(newpath)
+                if newpath not in paths:
+                    paths.append(newpath)
     return paths
 
 
 def main():
     sides = input("Enter the number of Sides per Permutation: ")
     pancakes = input("Enter the number of Permutations: ")
-    while not pancakes.isdigit():
-        pancakes = input("Please give an integer for the number of Permutations")
     while not sides.isdigit():
         sides = input("Please give an integer for the number of Sides per Permutation: ")
+    while not pancakes.isdigit():
+        pancakes = input("Please give an integer for the number of Permutations: ")
     pancakes = int(pancakes)
     sides = int(sides)
     root = ""
@@ -72,16 +73,21 @@ def main():
     graphdict = {}
     generate_graph(root, graphdict, sides, pancakes)
     path = []
-    paths = [find_all_paths(graphdict, graphdict[root][0], root, path)]
+    paths = []
     lendict = {}
     length = pow(sides, pancakes) * math.factorial(pancakes)
     for i in range(0, length + 1):
         lendict[i] = 0
+    for i in range(0, len(graphdict[root])):
+        paths.append(find_all_paths(graphdict, graphdict[root][i], root, path))
+    print(len(paths))
     for items in paths:
+        print(len(items))
         for things in items:
             if lendict[len(things)] == 0:
                 lendict[len(things)] = 1
 
+    print("For C_" + str(sides) + " w.p. S_" + str(pancakes) + ". The lengths is as follows below: ")
     print(lendict)
 
 
