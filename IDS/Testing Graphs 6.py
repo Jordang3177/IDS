@@ -1,5 +1,8 @@
 from collections import defaultdict
+import sys
+import math
 import timeit
+
 
 def simple_cycles(G):
     # Yield every elementary cycle in python graph G exactly once
@@ -83,7 +86,8 @@ def strongly_connected_components(graph):
             while True:
                 successor = stack.pop()
                 connected_component.append(successor)
-                if successor == node: break
+                if successor == node:
+                    break
             result.append(connected_component[:])
 
     for node in graph:
@@ -106,17 +110,78 @@ def subgraph(G, vertices):
     # Expects values of G to be sets
     return {v: G[v] & vertices for v in vertices}
 
-##example:
 
-graph = {0: [7, 3, 5], 1: [2], 2: [7, 1], 3: [0, 5], 4: [6, 8], 5: [0, 3, 7], 6: [4, 8], 7: [0, 2, 5, 8], 8: [4, 6, 7]}
-print(tuple(simple_cycles(graph)))
-start = timeit.default_timer()
-graph2 = {'12': ['1b2', '2b1b'], '1b2': ['1bb2', '2b1bb'], '1bb2': ['12', '2b1'], '2b1': ['2bb1', '1b2bb'],
-          '2bb1': ['21', '1b2'], '21': ['2b1', '1b2b'], '1b2b': ['1bb2b', '2bb1bb'], '1bb2b': ['12b', '2bb1'],
-          '12b': ['1b2b', '2bb1b'], '2bb1b': ['21b', '1bb2'], '21b': ['2b1b', '1bb2b'], '2b1b': ['2bb1b', '1bb2bb'],
-          '1bb2bb': ['12bb', '21'], '12bb': ['1b2bb', '21b'], '1b2bb': ['1bb2bb', '21bb'], '21bb': ['2b1bb', '12b'],
-          '2b1bb': ['2bb1bb', '12bb'], '2bb1bb': ['21bb', '12']}
-print(tuple(simple_cycles(graph2)))
-stop = timeit.default_timer()
-print("Time: ", stop - start)
-#print(tuple(simple_cycles(graph3)))
+sys.setrecursionlimit(30000)
+
+
+def generate_graph(vertex, gdict, s, p):
+    if vertex in gdict:
+        return
+    else:
+        instances = 1
+        children = []
+        for flip in range(0, p):
+            children.append(get_children(vertex, instances, s))
+            instances = instances + 1
+        gdict[vertex] = children
+        for items in gdict[vertex]:
+            generate_graph(items, gdict, s, p)
+    return gdict
+
+
+def get_children(nodes, instance, side):
+    original_name = nodes
+    end_name = ""
+    count = 0
+    for j in range(0, instance):
+        for k in range(1, len(original_name)):
+            if original_name[k] == 'b':
+                count = count + 1
+            else:
+                break
+        count = count + 1
+        temp_name = original_name[0:count]
+        original_name = original_name[count:]
+        if len(temp_name) == side:
+            temp_name = temp_name[0]
+        else:
+            temp_name = temp_name + 'b'
+        end_name = temp_name + end_name
+        count = 0
+    end_name = end_name + original_name
+    return end_name
+
+
+def main():
+    sides = input("Enter the number of Sides per Permutation: ")
+    pancakes = input("Enter the number of Permutations: ")
+    while not sides.isdigit():
+        sides = input("Please give an integer for the number of Sides per Permutation: ")
+    while not pancakes.isdigit():
+        pancakes = input("Please give an integer for the number of Permutations: ")
+    start = timeit.default_timer()
+    pancakes = int(pancakes)
+    sides = int(sides)
+    root = ""
+    for pancake in range(1, pancakes + 1):
+        root = root + str(pancake)
+
+    graphdict = {}
+    generate_graph(root, graphdict, sides, pancakes)
+    path = []
+    paths = []
+    lendict = {}
+    length = pow(sides, pancakes) * math.factorial(pancakes)
+    for i in range(0, length + 1):
+        lendict[i] = 0
+    lengths = tuple(simple_cycles(graphdict))
+    for items in lengths:
+        if lendict[len(items)] == 0:
+            lendict[len(items)] = 1
+    print(lendict)
+    stop = timeit.default_timer()
+    print("Time: ", stop - start)
+
+
+if __name__ == "__main__":
+    main()
