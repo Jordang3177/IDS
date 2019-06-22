@@ -1,5 +1,6 @@
 import sys
 import math
+import timeit
 
 sys.setrecursionlimit(30000)
 
@@ -64,6 +65,7 @@ def main():
         sides = input("Please give an integer for the number of Sides per Permutation: ")
     while not pancakes.isdigit():
         pancakes = input("Please give an integer for the number of Permutations: ")
+    start = timeit.default_timer()
     pancakes = int(pancakes)
     sides = int(sides)
     root = ""
@@ -78,6 +80,7 @@ def main():
     length = pow(sides, pancakes) * math.factorial(pancakes)
     for i in range(0, length + 1):
         lendict[i] = 0
+
     for i in range(0, len(graphdict[root])):
         paths.append(find_all_paths(graphdict, graphdict[root][i], root, path))
     print(len(paths))
@@ -89,6 +92,8 @@ def main():
 
     print("For C_" + str(sides) + " w.p. S_" + str(pancakes) + ". The lengths is as follows below: ")
     print(lendict)
+    stop = timeit.default_timer()
+    print("Time: ", stop - start)
 
 
 if __name__ == "__main__":
